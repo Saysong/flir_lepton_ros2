@@ -1,19 +1,24 @@
 #include <iostream>
-#include "ros/ros.h"
+#include "rclcpp/rclcpp.hpp"
 #include "flir_lepton/LeptonThread.h"
+#include "std_srvs/srv/empty.hpp"
+#include "sensor_msgs/msg/image.hpp"
 
 #include "flir_lepton/Palettes.h"
 #include "flir_lepton/SPI.h"
 #include "flir_lepton/Lepton_I2C.h"
-#include <sensor_msgs/Image.h>
-#include <sensor_msgs/image_encodings.h>
-#include <cv_bridge/cv_bridge.h>
+#include <cv_bridge/cv_bridge.hpp>
 
 #define PACKET_SIZE 164
 #define PACKET_SIZE_UINT16 (PACKET_SIZE/2)
 #define PACKETS_PER_FRAME 60
 #define FRAME_SIZE_UINT16 (PACKET_SIZE_UINT16*PACKETS_PER_FRAME)
 #define FPS 27;
+
+
+// int param_value;
+// node->declare_parameter("typeLepton", default_value);
+// node->get_parameter("typeLepton", param_value);
 
 LeptonThread::LeptonThread()
 {
@@ -41,8 +46,28 @@ LeptonThread::LeptonThread()
 
 	imgCount = 0;
 
-
 }
+
+LeptonThread::LeptonThread(rclcpp::Node::SharedPtr n)
+{
+    node = n;
+    loglevel = 0;
+    typeColormap = 3;
+    selectedColormap = colormap_ironblack;
+    selectedColormapSize = get_size_colormap_ironblack();
+
+    typeLepton = 2;
+    myImageWidth = 80;
+    myImageHeight = 60;
+
+    spiSpeed = 20 * 1000 * 1000;
+    autoRangeMin = true;
+    autoRangeMax = true;
+    rangeMin = 30000;
+    rangeMax = 32000;
+    imgCount = 0;
+}
+
 
 LeptonThread::~LeptonThread() {
 
@@ -123,14 +148,18 @@ void LeptonThread::useRangeMaxValue(uint16_t newMaxValue)
 	rangeMax = newMaxValue;
 }
 
-void LeptonThread::setPublisher(ros::Publisher pub)
+void LeptonThread::setPublisher(rclcpp::Publisher<sensor_msgs::msg::Image>::SharedPtr pub) 
 {
-	publisherImage = pub;
+    publisherImage = pub;
+}
+
+void LeptonThread::setNode(rclcpp::Node::SharedPtr n) {
+    node = n;
 }
 
 void LeptonThread::run()
 {
-    ROS_INFO("Lepton reading...");
+    RCLCPP_INFO(node->get_logger(), "Lepton reading...");
 	//create the initial image
 	myImage = cv::Mat(myImageHeight, myImageWidth, CV_8UC3);
 
@@ -145,8 +174,8 @@ void LeptonThread::run()
     //open spi port
 	SpiOpenPort(0, spiSpeed);
 
-	ros::Rate rate(25);
-	while(ros::ok()) {
+	rclcpp::Rate rate(25);
+	while(rclcpp::ok()) {
 
 		//read data packets from lepton over SPI
 		int resets = 0;
@@ -291,40 +320,45 @@ void LeptonThread::run()
 
 		//lets emit the signal for update
 		publishImage();
-    ros::spinOnce();
+    //rclcpp::spinOnce();
     rate.sleep();
 	}
-  //finally, close SPI port just bcuz
+  	//finally, close SPI port just bcuz
 	SpiClosePort(0);
 }
 
 void LeptonThread::publishImage()
 {
-  ROS_INFO("Lepton try to publish");
-	if (publisherImage != NULL) {
-		cv_bridge::CvImage img_bridge;
-		sensor_msgs::Image img_msg; // >> message to be sent
-		std_msgs::Header header; // empty header
-		header.seq = imgCount++; // user defined counter
-		header.stamp = ros::Time::now(); // time
-		img_bridge = cv_bridge::CvImage(header, sensor_msgs::image_encodings::RGB8, myImage);
-		img_bridge.toImageMsg(img_msg); // from cv_bridge to sensor_msgs::Image
-		publisherImage.publish(img_msg); // ros::Publisher pub_img = node.advertise<sensor_msgs::Image>("topic", queuesize);
-    ROS_INFO("Lepton publish data.");
-	}
-}
-
-bool LeptonThread::performFFC(std_srvs::Empty::Request&, std_srvs::Empty::Response&)
-{
-	//perform FFC
-	lepton_perform_ffc();
-	ROS_INFO("Lepton Perform FFC.");
-	return true;
+  rclcpp::Time timestamp = node->get_clock()->now();
+    if (publisherImage) {
+        cv_bridge::CvImage img_bridge;
+        sensor_msgs::msg::Image img_msg;
+        std_msgs::msg::Header header;
+        header.stamp = timestamp;
+        img_bridge = cv_bridge::CvImage(header, "rgb8", myImage);
+        img_bridge.toImageMsg(img_msg);
+        publisherImage->publish(img_msg);
+        RCLCPP_INFO(node->get_logger(), "published thermal image");
+    }
 }
 
 void LeptonThread::log_message(uint16_t level, std::string msg)
 {
 	if (level <= loglevel) {
-		ROS_ERROR_STREAM(msg);
+		RCLCPP_ERROR(rclcpp::get_logger("flir_lepton"), "%s", msg.c_str());
 	}
 }
+
+// fixed for ROS2
+bool LeptonThread::performFFC(
+    const std::shared_ptr<std_srvs::srv::Empty::Request> request,
+    std::shared_ptr<std_srvs::srv::Empty::Response> response)
+{
+    (void)request;
+    (void)response;
+
+    lepton_perform_ffc();
+    RCLCPP_INFO(rclcpp::get_logger("flir_lepton"), "Lepton Perform FFC.");
+    return true;
+}
+

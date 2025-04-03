@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 2.8.3)
+cmake_minimum_required(VERSION 3.5)
 project(flir_lepton)
 
-find_package( OpenCV REQUIRED )
+# C++ standard to C++14 (recommended for ROS2)
+set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 # target_link_libraries( DisplayImage ${OpenCV_LIBS} )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
@@ -10,12 +13,12 @@ find_package( OpenCV REQUIRED )
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
-find_package(catkin REQUIRED COMPONENTS
-  roscpp
-	std_srvs
-	cv_bridge
-  sensor_msgs
-)
+find_package(ament_cmake REQUIRED)
+find_package(rclcpp REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(std_srvs REQUIRED)
+find_package(OpenCV REQUIRED)
+find_package(cv_bridge REQUIRED)
 
 ## System dependencies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
@@ -106,12 +109,12 @@ find_package(catkin REQUIRED COMPONENTS
 ## LIBRARIES: libraries you create in this project that dependent projects also need
 ## CATKIN_DEPENDS: catkin_packages dependent projects also need
 ## DEPENDS: system dependencies of this project that dependent projects also need
-catkin_package(
-	INCLUDE_DIRS include
-	# LIBRARIES leptonSDKEmb32PUB
-  CATKIN_DEPENDS roscpp sensor_msgs
-#  DEPENDS system_lib
-)
+# catkin_package(
+# 	INCLUDE_DIRS include
+# 	# LIBRARIES leptonSDKEmb32PUB
+#   CATKIN_DEPENDS roscpp sensor_msgs
+# #  DEPENDS system_lib
+# )
 
 ###########
 ## Build ##
@@ -121,7 +124,8 @@ catkin_package(
 ## Your package locations should be listed before other locations
 include_directories(
 	include
-  ${catkin_INCLUDE_DIRS}
+  ${OpenCV_INCLUDE_DIRS}
+  /opt/ros/jazzy/include
 )
 
 ## Declare a C++ library
@@ -147,20 +151,20 @@ include_directories(
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
 ## The recommended prefix ensures that target names across packages don't collide
-add_executable(
-	${PROJECT_NAME}_node src/main.cpp
-	src/LeptonThread.cpp
-	src/Palettes.cpp
-	src/SPI.cpp
-	src/Lepton_I2C.cpp
-  	src/leptonSDKEmb32PUB/LEPTON_SDK.c
-	src/leptonSDKEmb32PUB/LEPTON_SYS.c
-	src/leptonSDKEmb32PUB/LEPTON_OEM.c
- 	src/leptonSDKEmb32PUB/LEPTON_AGC.c
-  	src/leptonSDKEmb32PUB/LEPTON_I2C_Protocol.c
-  	src/leptonSDKEmb32PUB/LEPTON_I2C_Service.c
-  	src/leptonSDKEmb32PUB/crc16fast.c
-  	src/leptonSDKEmb32PUB/raspi_I2C.c
+add_executable(${PROJECT_NAME}
+  src/main.cpp
+  src/LeptonThread.cpp
+  src/Palettes.cpp
+  src/SPI.cpp
+  src/Lepton_I2C.cpp
+  src/leptonSDKEmb32PUB/LEPTON_SDK.c
+  src/leptonSDKEmb32PUB/LEPTON_SYS.c
+  src/leptonSDKEmb32PUB/LEPTON_OEM.c
+  src/leptonSDKEmb32PUB/LEPTON_AGC.c
+  src/leptonSDKEmb32PUB/LEPTON_I2C_Protocol.c
+  src/leptonSDKEmb32PUB/LEPTON_I2C_Service.c
+  src/leptonSDKEmb32PUB/crc16fast.c
+  src/leptonSDKEmb32PUB/raspi_I2C.c
 )
 
 ## Rename C++ executable without prefix
@@ -174,10 +178,9 @@ add_executable(
 # add_dependencies(${PROJECT_NAME}_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(${PROJECT_NAME}_node
-  ${catkin_LIBRARIES}
-	${OpenCV_LIBS}
-)
+# target_link_libraries(${PROJECT_NAME}_node
+# 	${OpenCV_LIBS}
+# )
 
 #############
 ## Install ##
@@ -195,17 +198,21 @@ target_link_libraries(${PROJECT_NAME}_node
 
 ## Mark executables for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_executables.html
-# install(TARGETS ${PROJECT_NAME}_node
-#   RUNTIME DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION}
-# )
+
+# Specify dependencies for the target
+ament_target_dependencies(${PROJECT_NAME}
+  rclcpp
+  sensor_msgs
+  std_srvs
+  cv_bridge
+)
 
 ## Mark libraries for installation
 ## See http://docs.ros.org/melodic/api/catkin/html/howto/format1/building_libraries.html
-# install(TARGETS ${PROJECT_NAME}
-#   ARCHIVE DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   LIBRARY DESTINATION ${CATKIN_PACKAGE_LIB_DESTINATION}
-#   RUNTIME DESTINATION ${CATKIN_GLOBAL_BIN_DESTINATION}
-# )
+install(TARGETS ${PROJECT_NAME}
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 
 ## Mark cpp header files for installation
 # install(DIRECTORY include/${PROJECT_NAME}/
@@ -233,3 +240,6 @@ target_link_libraries(${PROJECT_NAME}_node
 
 ## Add folders to be run by python nosetests
 # catkin_add_nosetests(test)
+
+# Required by ament build system
+ament_package()

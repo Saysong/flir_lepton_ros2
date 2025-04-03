@@ -1,0 +1,21 @@
+{
+    "configurations": [
+      {
+        "name": "ROS2",
+        "includePath": [
+        "/opt/ros/jazzy/include/**",
+        "/usr/include/**",
+        "${workspaceFolder}/include",
+        "/root/ros2_ws/install/include/**",
+        "/root/ros2_ws/install/flir_lepton/include/**"
+        ],
+        "defines": [],
+        "compilerPath": "/usr/bin/g++",
+        "cStandard": "c17",
+        "cppStandard": "c++14",
+        "intelliSenseMode": "linux-gcc-x64"
+      }
+    ],
+    "version": 4
+  }
+  

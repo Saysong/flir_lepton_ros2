@@ -1,5 +1,5 @@
-#include "ros/ros.h"
-#include <sensor_msgs/Image.h>
+#include "rclcpp/rclcpp.hpp"
+#include <sensor_msgs/msg/image.hpp>
 #include "flir_lepton/LeptonThread.h"
 #define RAINBOW 1
 #define GRAYSCALE 2
@@ -9,58 +9,55 @@
 
 int main( int argc, char **argv )
 {
+  // Initialize the ROS2 node
+  rclcpp::init(argc, argv);
+  auto node = std::make_shared<rclcpp::Node>("flir_lepton");
 
-  ros::init(argc, argv, "flir_lepton");
-  ros::NodeHandle nh("~");
+  // parameters from launch or YAML file (with defaults)
+  int typeColormap = node->declare_parameter("typeColormap", IRONBLACK);
+  int typeLepton = node->declare_parameter("typeLepton", LEPTON_2);
+  int spiSpeed = node->declare_parameter("spiSpeed", 20);
+  int rangeMin = node->declare_parameter("rangeMin", -1);
+  int rangeMax = node->declare_parameter("rangeMax", -1);
+  int loglevel = node->declare_parameter("loglevel", 0);
+  int autoScale = node->declare_parameter("autoScale", 1);
+  std::string topicName = node->declare_parameter("topicName", std::string("thermal_image"));
 
-	int typeColormap;
-	int typeLepton;
-	int spiSpeed; // SPI bus speed 20MHz
-	int rangeMin; //
-	int rangeMax; //
-	int loglevel;
-  int autoScale;
-  std::string topicName = "thermal_image";
+  // log the configuration
+  RCLCPP_INFO(node->get_logger(), "Flir Lepton typeColormap: %d", typeColormap);
+  RCLCPP_INFO(node->get_logger(), "Flir Lepton typeLepton: %d, SpiSpeed: %d", typeColormap, spiSpeed);
+  RCLCPP_INFO(node->get_logger(), "Flir Lepton rangeMin: %d, rangeMax: %d", rangeMin, rangeMax);
 
-  if(!nh.getParam("typeColormap", typeColormap))
-    typeColormap = IRONBLACK;
+  // ROS2 publisher for thermal image
+  auto imagePublisher = node->create_publisher<sensor_msgs::msg::Image>(topicName, 10);
 
-  if(!nh.getParam("typeLepton", typeLepton))
-    typeLepton = LEPTON_2;
-
-  if(!nh.getParam("spiSpeed", spiSpeed))
-    spiSpeed = 20;
-
-  if(!nh.getParam("rangeMin", rangeMin))
-    rangeMin = -1;
-
-  if(!nh.getParam("rangeMax", rangeMax))
-    rangeMax = -1;
-
-  if(!nh.getParam("loglevel", loglevel))
-    loglevel = 0;
-
-  if(!nh.getParam("autoScale", autoScale))
-    autoScale = 1;
-
-  ROS_INFO("Flir Lepton typeColormap: %d", typeColormap);
-  ROS_INFO("Flir Lepton typeLepton: %d, SpiSpeed: %d", typeColormap, spiSpeed);
-  ROS_INFO("Flir Lepton rangeMin: %d, rangeMax: %d", rangeMin, rangeMax);
-
-  ros::Publisher imagePublisher = nh.advertise<sensor_msgs::Image>(topicName, 10);
-
-	//create a thread to gather SPI data
-	//when the thread emits updateImage, the label should update its image accordingly
-	LeptonThread *lepton = new LeptonThread();
-	lepton->setLogLevel(loglevel);
-	lepton->useColormap(typeColormap);
-	lepton->useLepton(typeLepton);
-	lepton->useSpiSpeedMhz(spiSpeed);
-	lepton->setAutomaticScalingRange(autoScale);
+  // create and configure the Leption SPI capture thread
+  auto lepton = std::make_shared<LeptonThread>(node);
+  lepton->setLogLevel(loglevel);
+  lepton->useColormap(typeColormap);
+  lepton->useLepton(typeLepton);
+  lepton->useSpiSpeedMhz(spiSpeed);
+  lepton->setAutomaticScalingRange(autoScale);
   lepton->setPublisher(imagePublisher);
-	if (0 <= rangeMin) lepton->useRangeMinValue(rangeMin);
-	if (0 <= rangeMax) lepton->useRangeMaxValue(rangeMax);
-  ros::ServiceServer performFCC = nh.advertiseService("performFCC", &LeptonThread::performFFC, lepton);
-	lepton->run();
-	return 0 ;
+  lepton->setNode(node);
+  if (0 <= rangeMin) lepton->useRangeMinValue(rangeMin);
+  if (0 <= rangeMax) lepton->useRangeMaxValue(rangeMax);
+
+
+  // Register ROS2 service to trigger Flat Field Correction (FFC)
+  auto service = node->create_service<std_srvs::srv::Empty>(
+    "performFCC",
+    std::bind(&LeptonThread::performFFC, lepton.get(), std::placeholders::_1, std::placeholders::_2)
+  );
+
+
+  // Start SPI
+  lepton->run();
+
+  // Keep the node alive
+  rclcpp::spin(node);
+  rclcpp::shutdown();
+
+  return 0;
+  
 }
