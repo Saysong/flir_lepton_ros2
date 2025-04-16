@@ -161,7 +161,7 @@ void LeptonThread::run()
 {
     RCLCPP_INFO(node->get_logger(), "Lepton reading...");
 	//create the initial image
-	myImage = cv::Mat(myImageHeight, myImageWidth, CV_8UC3);
+	myImage = cv::Mat(myImageHeight, myImageWidth, CV_8UC3); // create image with 3 channels (RGB)
 
 	const int *colormap = selectedColormap;
 	const int colormapSize = selectedColormapSize;
@@ -201,7 +201,13 @@ void LeptonThread::run()
 				continue;
 			}
 			if ((typeLepton == 3) && (packetNumber == 20)) {
-				segmentNumber = (result[j*PACKET_SIZE] >> 4) & 0x0f;
+				segmentNumber = (result[j*PACKET_SIZE] >> 4) & 0x0f;	// using 4-segment
+
+				// check the segment number
+				// if -1 or 0 is printed, it's not segment structure
+				// if 1, 2, 3, or 4 is printed, it's segment structure
+				RCLCPP_INFO(node->get_logger(), "Segment number: %d", segmentNumber);
+
 				if ((segmentNumber < 1) || (4 < segmentNumber)) {
 					log_message(10, "[ERROR] Wrong segment number " + std::to_string(segmentNumber));
 					break;
@@ -216,6 +222,7 @@ void LeptonThread::run()
 		//
 		int iSegmentStart = 1;
 		int iSegmentStop;
+
 		if (typeLepton == 3) {
 			if ((segmentNumber < 1) || (4 < segmentNumber)) {
 				n_wrong_segment++;
@@ -300,16 +307,31 @@ void LeptonThread::run()
 				int ofs_r = 3 * value + 0; if (colormapSize <= ofs_r) ofs_r = colormapSize - 1;
 				int ofs_g = 3 * value + 1; if (colormapSize <= ofs_g) ofs_g = colormapSize - 1;
 				int ofs_b = 3 * value + 2; if (colormapSize <= ofs_b) ofs_b = colormapSize - 1;
-				color = cv::Vec3b(colormap[ofs_r], colormap[ofs_g], colormap[ofs_b]);
-				if (typeLepton == 3) {
-					column = (i % PACKET_SIZE_UINT16) - 2 + (myImageWidth / 2) * ((i % (PACKET_SIZE_UINT16 * 2)) / PACKET_SIZE_UINT16);
-					row = i / PACKET_SIZE_UINT16 / 2 + ofsRow;
-				}
-				else {
-					column = (i % PACKET_SIZE_UINT16) - 2;
-					row = i / PACKET_SIZE_UINT16;
-				}
-				myImage.at<cv::Vec3b>(row, column) = color;
+				color = cv::Vec3b(colormap[ofs_r], colormap[ofs_g], colormap[ofs_b]);	// apply color map to the raw value
+
+
+				// check the row/column here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+				// if (typeLepton == 3) {
+				// 	column = (i % PACKET_SIZE_UINT16) - 2 + (myImageWidth / 2) * ((i % (PACKET_SIZE_UINT16 * 2)) / PACKET_SIZE_UINT16);
+				// 	row = i / PACKET_SIZE_UINT16 / 2 + ofsRow;
+				// }
+				// else {
+				// 	column = (i % PACKET_SIZE_UINT16) - 2;
+				// 	row = i / PACKET_SIZE_UINT16;
+				// }
+				// This calculation is for Lepton 3.5
+				int pixel_index = i % PACKET_SIZE_UINT16; // extract pixel index within the packet, skipping 2 header bytes
+				int packet_index = i / PACKET_SIZE_UINT16; // determine which packet in the sequence this pixel came from
+
+				// column position includes horizontal shift depending on even/odd row pairs.
+				// `(myImageWidth / 2)` handles horizontal interleaving.
+				column = (pixel_index - 2) + (myImageWidth / 2) * ((i % (PACKET_SIZE_UINT16 * 2)) / PACKET_SIZE_UINT16);
+				row = packet_index / 2 + ofsRow; // row is adjusted by the segment offset (each segment adds 30 rows).
+
+				// ensure with the image size
+				if (column < 0 || column >= myImageWidth || row < 0 || row >= myImageHeight) continue;
+
+				myImage.at<cv::Vec3b>(row, column) = color; // write the pixel value into the image. We need this line.
 			}
 		}
 
@@ -335,7 +357,7 @@ void LeptonThread::publishImage()
         sensor_msgs::msg::Image img_msg;
         std_msgs::msg::Header header;
         header.stamp = timestamp;
-        img_bridge = cv_bridge::CvImage(header, "rgb8", myImage);
+        img_bridge = cv_bridge::CvImage(header, "rgb8", myImage);	// using a rgb8 encoding; publish okay.
         img_bridge.toImageMsg(img_msg);
         publisherImage->publish(img_msg);
         RCLCPP_INFO(node->get_logger(), "published thermal image");
@@ -361,4 +383,3 @@ bool LeptonThread::performFFC(
     RCLCPP_INFO(rclcpp::get_logger("flir_lepton"), "Lepton Perform FFC.");
     return true;
 }
-
