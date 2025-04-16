@@ -15,7 +15,7 @@ int main( int argc, char **argv )
 
   // parameters from launch or YAML file (with defaults)
   int typeColormap = node->declare_parameter("typeColormap", IRONBLACK);
-  int typeLepton = node->declare_parameter("typeLepton", LEPTON_2);
+  int typeLepton = node->declare_parameter("typeLepton", LEPTON_3);
   int spiSpeed = node->declare_parameter("spiSpeed", 20);
   int rangeMin = node->declare_parameter("rangeMin", -1);
   int rangeMax = node->declare_parameter("rangeMax", -1);
