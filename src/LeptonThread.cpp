@@ -31,9 +31,9 @@ LeptonThread::LeptonThread()
 	selectedColormapSize = get_size_colormap_ironblack();
 
 	//
-	typeLepton = 2; // 2:Lepton 2.x  / 3:Lepton 3.x
-	myImageWidth = 80;
-	myImageHeight = 60;
+	typeLepton = 3; // 2:Lepton 2.x  / 3:Lepton 3.x
+	myImageWidth = 160;
+	myImageHeight = 120;
 
 	//
 	spiSpeed = 20 * 1000 * 1000; // SPI bus speed 20MHz
@@ -56,9 +56,9 @@ LeptonThread::LeptonThread(rclcpp::Node::SharedPtr n)
     selectedColormap = colormap_ironblack;
     selectedColormapSize = get_size_colormap_ironblack();
 
-    typeLepton = 2;
-    myImageWidth = 80;
-    myImageHeight = 60;
+    typeLepton = 3;
+    myImageWidth = 160;
+    myImageHeight = 120;
 
     spiSpeed = 20 * 1000 * 1000;
     autoRangeMin = true;
