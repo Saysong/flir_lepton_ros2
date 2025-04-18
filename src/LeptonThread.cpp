@@ -33,8 +33,8 @@ LeptonThread::LeptonThread()
 
 	//
 	typeColormap = 3; // 1:colormap_rainbow  /  2:colormap_grayscale  /  3:colormap_ironblack(default)
-	selectedColormap = colormap_ironblack;
-	selectedColormapSize = get_size_colormap_ironblack();
+	// selectedColormap = colormap_ironblack;
+	// selectedColormapSize = get_size_colormap_ironblack();
 
 	//
 	typeLepton = 3; // 2:Lepton 2.x  / 3:Lepton 3.x
@@ -59,8 +59,8 @@ LeptonThread::LeptonThread(rclcpp::Node::SharedPtr n)
     node = n;
     loglevel = 0;
     typeColormap = 3;
-    selectedColormap = colormap_ironblack;
-    selectedColormapSize = get_size_colormap_ironblack();
+    // selectedColormap = colormap_ironblack;
+    // selectedColormapSize = get_size_colormap_ironblack();
 
     typeLepton = 3;
     myImageWidth = 160;
@@ -90,17 +90,17 @@ void LeptonThread::useColormap(int newTypeColormap)
 	{
 		case 1:
 			typeColormap = 1;
-			selectedColormap = colormap_rainbow;
+			// selectedColormap = colormap_rainbow;
 			// selectedColormapSize = get_size_colormap_rainbow();
 			break;
 		case 2:
 			typeColormap = 2;
-			selectedColormap = colormap_grayscale;
+			// selectedColormap = colormap_grayscale;
 			// selectedColormapSize = get_size_colormap_grayscale();
 			break;
 		default:
 			typeColormap = 3;
-			selectedColormap = colormap_ironblack;
+			// selectedColormap = colormap_ironblack;
 			// selectedColormapSize = get_size_colormap_ironblack();
 			break;
 	}
@@ -412,7 +412,7 @@ bool LeptonThread::performFFC(
     (void)request;
     (void)response;
 
-    lepton_perform_ffc();
+    // lepton_perform_ffc();
     RCLCPP_INFO(rclcpp::get_logger("flir_lepton"), "Lepton Perform FFC.");
     return true;
 }
