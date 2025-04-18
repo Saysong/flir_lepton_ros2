@@ -371,13 +371,14 @@ void LeptonThread::run()
 
 		//lets emit the signal for update
 		const uint8_t* dataRGB = lepton3->getLastFrameRGB( w, h );
-		if (dataRGB == NULL) {
+		if (!dataRGB) {
 			log_message(5, "[ERROR] No data from Lepton3");
-			continue;
 		}
-		memcpy(myImage.data, dataRGB, 3*w*h*sizeof(uint8_t) ); // copy the RGB data to the image
-
-		publishImage();
+		else {
+			memcpy(myImage.data, dataRGB, 3*w*h*sizeof(uint8_t) ); // copy the RGB data to the image
+	
+			publishImage();
+		}
     //rclcpp::spinOnce();
     rate.sleep();
 	}
