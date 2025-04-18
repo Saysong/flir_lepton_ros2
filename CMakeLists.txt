@@ -157,7 +157,6 @@ include_directories(
 add_executable(${PROJECT_NAME}
   src/main.cpp
   src/LeptonThread.cpp
-  src/Palettes.cpp
   grabber_lib/src/Lepton3.cpp
   grabber_lib/tools/src/stopwatch.cpp
   grabber_lib/Lepton_SDK/src/crc16fast.c
