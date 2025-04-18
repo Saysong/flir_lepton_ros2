@@ -5,6 +5,9 @@ project(flir_lepton)
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# Letpon3 Library source code
+add_subdirectory (grabber_lib)
+
 # target_link_libraries( DisplayImage ${OpenCV_LIBS} )
 
 ## Compile as C++11, supported in ROS Kinetic and newer
