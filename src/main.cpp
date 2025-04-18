@@ -9,6 +9,7 @@
 
 int main( int argc, char **argv )
 {
+  printf("driver starting...\n");
   // Initialize the ROS2 node
   rclcpp::init(argc, argv);
   auto node = std::make_shared<rclcpp::Node>("flir_lepton");
@@ -52,7 +53,9 @@ int main( int argc, char **argv )
 
 
   // Start SPI
+  printf("Starting run...\n");
   lepton->run();
+  printf("run() finished...\n");
 
   // Keep the node alive
   rclcpp::spin(node);
