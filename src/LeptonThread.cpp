@@ -4,7 +4,6 @@
 #include "std_srvs/srv/empty.hpp"
 #include "sensor_msgs/msg/image.hpp"
 
-#include "flir_lepton/Palettes.h"
 #include "Lepton3.hpp"
 #include <cv_bridge/cv_bridge.hpp>
 
@@ -92,17 +91,17 @@ void LeptonThread::useColormap(int newTypeColormap)
 		case 1:
 			typeColormap = 1;
 			selectedColormap = colormap_rainbow;
-			selectedColormapSize = get_size_colormap_rainbow();
+			// selectedColormapSize = get_size_colormap_rainbow();
 			break;
 		case 2:
 			typeColormap = 2;
 			selectedColormap = colormap_grayscale;
-			selectedColormapSize = get_size_colormap_grayscale();
+			// selectedColormapSize = get_size_colormap_grayscale();
 			break;
 		default:
 			typeColormap = 3;
 			selectedColormap = colormap_ironblack;
-			selectedColormapSize = get_size_colormap_ironblack();
+			// selectedColormapSize = get_size_colormap_ironblack();
 			break;
 	}
 }
