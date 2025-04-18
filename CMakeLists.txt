@@ -158,16 +158,18 @@ add_executable(${PROJECT_NAME}
   src/main.cpp
   src/LeptonThread.cpp
   src/Palettes.cpp
-  src/SPI.cpp
-  src/Lepton_I2C.cpp
-  src/leptonSDKEmb32PUB/LEPTON_SDK.c
-  src/leptonSDKEmb32PUB/LEPTON_SYS.c
-  src/leptonSDKEmb32PUB/LEPTON_OEM.c
-  src/leptonSDKEmb32PUB/LEPTON_AGC.c
-  src/leptonSDKEmb32PUB/LEPTON_I2C_Protocol.c
-  src/leptonSDKEmb32PUB/LEPTON_I2C_Service.c
-  src/leptonSDKEmb32PUB/crc16fast.c
-  src/leptonSDKEmb32PUB/raspi_I2C.c
+  grabber_lib/src/Lepton3.cpp
+  grabber_lib/tools/src/stopwatch.cpp
+  grabber_lib/Lepton_SDK/src/crc16fast.c
+  grabber_lib/Lepton_SDK/src/LEPTON_AGC.c
+  grabber_lib/Lepton_SDK/src/LEPTON_I2C_Protocol.c
+  grabber_lib/Lepton_SDK/src/LEPTON_I2C_Service.c
+  grabber_lib/Lepton_SDK/src/LEPTON_OEM.c
+  grabber_lib/Lepton_SDK/src/LEPTON_RAD.c
+  grabber_lib/Lepton_SDK/src/LEPTON_SDK.c
+  grabber_lib/Lepton_SDK/src/LEPTON_SYS.c
+  grabber_lib/Lepton_SDK/src/LEPTON_VID.c
+  grabber_lib/Lepton_SDK/src/linux_I2C.c
 )
 
 ## Rename C++ executable without prefix
