@@ -130,7 +130,6 @@ include_directories(
   grabber_lib/include
   grabber_lib/Lepton_SDK/include
   grabber_lib/tools/include
-  )
   ${OpenCV_INCLUDE_DIRS}
   /opt/ros/jazzy/include
 )
