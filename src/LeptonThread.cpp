@@ -11,7 +11,7 @@ using namespace std;
 
 // ----> Global variables
 Lepton3* lepton3=nullptr;
-static bool close_var = false;
+// static bool close_var = false;
 static bool rgb_mode = true;
 // <---- Global variables
 
@@ -179,11 +179,11 @@ void LeptonThread::run()
 	uint16_t n_zero_value_drop_frame = 0;
     //open spi port
 	// SpiOpenPort(0, spiSpeed);
-	struct sigaction sigIntHandler;
-    sigIntHandler.sa_handler = close_handler;
-    sigemptyset(&sigIntHandler.sa_mask);
-    sigIntHandler.sa_flags = 0;
-    sigaction(SIGINT, &sigIntHandler, NULL);
+	// struct sigaction sigIntHandler;
+    // sigIntHandler.sa_handler = close_handler;
+    // sigemptyset(&sigIntHandler.sa_mask);
+    // sigIntHandler.sa_flags = 0;
+    // sigaction(SIGINT, &sigIntHandler, NULL);
     // <---- Set Ctrl+C handler
 
     Lepton3::DebugLvl deb_lvl = Lepton3::DBG_NONE;
@@ -204,7 +204,7 @@ void LeptonThread::run()
     stpWtc.tic();
 
 	rclcpp::Rate rate(25);
-	while(rclcpp::ok() && !close_var) {
+	while(rclcpp::ok()) {
 
 		//read data packets from lepton over SPI
 		int resets = 0;
@@ -429,7 +429,7 @@ void close_handler(int s)
     if(s==2)
     {
         cout << std::endl << "Ctrl+C pressed..." << std::endl;
-        close_var = true;
+        // close_var = true;
     }
 }
 
