@@ -189,7 +189,7 @@ void LeptonThread::run()
 
     Lepton3::DebugLvl deb_lvl = Lepton3::DBG_NONE;
 
-    lepton3 = new Lepton3( "/dev/spidev0.0", "/dev/i2c-0", deb_lvl ); // use SPI1 and I2C-1 ports
+    lepton3 = new Lepton3( "/dev/spidev0.0", "/dev/i2c-1", deb_lvl ); // use SPI1 and I2C-1 ports
     lepton3->start();
 
     // Set initial data mode
