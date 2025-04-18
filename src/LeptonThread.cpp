@@ -204,7 +204,7 @@ void LeptonThread::run()
     stpWtc.tic();
 
 	rclcpp::Rate rate(25);
-	while(rclcpp::ok()) {
+	while(rclcpp::ok() && !close_var) {
 
 		//read data packets from lepton over SPI
 		int resets = 0;
