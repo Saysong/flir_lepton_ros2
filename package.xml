@@ -50,7 +50,7 @@
   <depend>cv_bridge</depend>
   <depend>std_srvs</depend>
   <depend>image_view</depend>
-  <depend>OpenCV</depend>
+  <depend>opencv</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
