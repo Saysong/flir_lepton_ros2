@@ -11,7 +11,7 @@ using namespace std;
 
 // ----> Global variables
 Lepton3* lepton3=nullptr;
-static bool close = false;
+static bool close_var = false;
 static bool rgb_mode = true;
 // <---- Global variables
 
@@ -424,7 +424,7 @@ void close_handler(int s)
     if(s==2)
     {
         cout << std::endl << "Ctrl+C pressed..." << std::endl;
-        close = true;
+        close_var = true;
     }
 }
 
