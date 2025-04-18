@@ -127,6 +127,10 @@ find_package(cv_bridge REQUIRED)
 ## Your package locations should be listed before other locations
 include_directories(
 	include
+  grabber_lib/include
+  grabber_lib/Lepton_SDK/include
+  grabber_lib/tools/include
+  )
   ${OpenCV_INCLUDE_DIRS}
   /opt/ros/jazzy/include
 )
