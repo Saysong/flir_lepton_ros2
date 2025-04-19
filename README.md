@@ -1,5 +1,5 @@
 # Flir Lepton ROS package
-A ROS 2 node for the Flir Lepton 3. Fuctioning but not finalized. Tested on the NVIDIA Jetson Nano, linked to I2C Bus 1
+A ROS 2 node for the Flir Lepton 3. Fuctioning but not finalized. Tested on the NVIDIA Jetson Nano, linked to I2C Bus 1. Launch files not yet configured for ROS 2
 
 ## Pin Mapping
 
@@ -23,6 +23,14 @@ SCL         | I2C_2_SCL, I2C Bus 1 (5)
 ```bash
 ros2 run flir_lepton flir_lepton
 ```
+
+If no camera information is being produced it may be necessary to reload the spidev kernel module per https://www.myzhar.com/blog/jetson-nano-with-flir-lepton3/#change-spi-buffer-size
+
+```bash
+sudo rmmod spidev
+sudo modprobe spidev bufsize=20480
+```
+
 ## Acknowledgements
 This package is based built off of the ROS 1 node https://github.com/turing-lab/flir_lepton
 
