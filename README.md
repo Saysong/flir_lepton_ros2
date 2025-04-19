@@ -1,5 +1,7 @@
 # Flir Lepton ROS package
-This package capture images from the [Flir Lepton Camera](https://www.sparkfun.com/products/14654) and publish them in a ROS topic. Tested on ROS melodic in a Raspberry pi 3 and the NVIDIA Jetson Nano.
+A ROS 2 
+
+This package capture images from the [Flir Lepton Camera](https://www.sparkfun.com/products/14654) and publish them in a ROS topic. Tested on the NVIDIA Jetson Nano.
 
 ## Pin Mapping
 
@@ -33,5 +35,8 @@ SCL         | SCL1, GPIO03 (5)          | I2C_2_SCL, I2C Bus 1 (5)
 
 ### Execution
 ```bash
-roslaunch flir_lepton captureAndView.launch
+ros2 run flir_lepton 
 ```
+## Acknowledgements
+This package is based built off of the ROS 1 node https://github.com/turing-lab/flir_lepton
+And the flir lepton SDK implementation from https://github.com/Myzhar/Lepton3_Jetson
