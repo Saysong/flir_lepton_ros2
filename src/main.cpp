@@ -22,7 +22,7 @@ int main( int argc, char **argv )
   int rangeMax = node->declare_parameter("rangeMax", -1);
   int loglevel = node->declare_parameter("loglevel", 0);
   int autoScale = node->declare_parameter("autoScale", 1);
-  std::string topicName = node->declare_parameter("topicName", std::string("thermal_image"));
+  std::string topicName = node->declare_parameter("topicName", std::string("camera_thermal/image"));
 
   // log the configuration
   RCLCPP_INFO(node->get_logger(), "Flir Lepton typeColormap: %d", typeColormap);
