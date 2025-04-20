@@ -1,5 +1,5 @@
 # Flir Lepton ROS package
-A ROS 2 node for the Flir Lepton 3. Fuctioning but not finalized. Tested on the NVIDIA Jetson Nano, linked to I2C Bus 1. Launch files not yet configured for ROS 2
+A ROS 2 node for the Flir Lepton 3. Fuctioning but not finalized. Tested on the NVIDIA Jetson Nano, linked to I2C Bus 1. User must directly run the node as the older Launch files not yet configured for ROS 2 
 
 ## Pin Mapping
 
@@ -17,7 +17,7 @@ SCL         | I2C_2_SCL, I2C Bus 1 (5)
 ## flir_lepton_node
 
 ### Publish
-  - `~/camera_thermal/image`: `sensor_msgs/msg/Image`
+  - `~/thermal/image_raw`: `sensor_msgs/msg/Image`
 
 ### Execution
 ```bash
